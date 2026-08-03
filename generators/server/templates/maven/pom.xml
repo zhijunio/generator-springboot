@@ -18,7 +18,7 @@
     <description><%= appName %></description>
 
     <properties>
-        <java.version><%= JAVA_VERSION %></java.version>
+        <java.version><%= javaVersion %></java.version>
 
         <spring-cloud.version><%= SPRING_CLOUD_VERSION %></spring-cloud.version>
         <%_ if (persistence === 'mybatis') { _%>
@@ -40,7 +40,7 @@
 
         <jacoco.minimum.coverage><%= JACOCO_MIN_COVERAGE_REQUIRED %></jacoco.minimum.coverage>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
-        <jib-maven-plugin.image><%= JAVA_IMAGE %></jib-maven-plugin.image>
+        <jib-maven-plugin.image><%= javaImage %></jib-maven-plugin.image>
     </properties>
 
     <dependencies>
@@ -105,6 +105,24 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <%_ } _%>
+        <%_ if (messagingType === 'rabbitmq') { _%>
+        <!-- Messaging: RabbitMQ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <%_ } _%>
+        <%_ if (features.includes('otel')) { _%>
+        <!-- Observability: OpenTelemetry -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
         </dependency>
         <%_ } _%>
 

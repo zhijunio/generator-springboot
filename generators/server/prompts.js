@@ -3,6 +3,8 @@ export default {
 };
 
 async function prompting() {
+    // Reuse previously saved answers (.yo-rc.json) as defaults for a smooth re-run
+    const saved = this.config.getAll() || {};
     const prompts = [
         {
             type: 'string',
@@ -12,7 +14,7 @@ async function prompting() {
                     ? true
                     : 'The application name you have provided is not valid',
             message: 'What is the application name?',
-            default: 'myservice'
+            default: saved.appName || 'myservice'
         },
         {
             type: 'string',
@@ -22,7 +24,7 @@ async function prompting() {
                     ? true
                     : 'The package name you have provided is not a valid Java package name.',
             message: 'What is the default package name?',
-            default: 'com.mycompany.myservice'
+            default: saved.packageName || 'com.mycompany.myservice'
         },
         {
             type: 'list',
@@ -46,7 +48,7 @@ async function prompting() {
                     name: 'MongoDB'
                 }
             ],
-            default: 'postgresql'
+            default: saved.databaseType || 'postgresql'
         },
         {
             type: 'list',
@@ -66,7 +68,7 @@ async function prompting() {
                     name: 'None'
                 }
             ],
-            default: 'flywaydb'
+            default: saved.dbMigrationTool || 'flywaydb'
         },
         {
             when: (answers) => answers.dbMigrationTool === 'liquibase',
@@ -87,7 +89,7 @@ async function prompting() {
                     name: 'SQL (like \'001-init.sql\')'
                 }
             ],
-            default: 'xml'
+            default: saved.dbMigrationFormat || 'xml'
         },
         {
             type: 'checkbox',
@@ -101,6 +103,10 @@ async function prompting() {
                 {
                     value: 'monitoring',
                     name: 'Prometheus, Grafana Docker configuration'
+                },
+                {
+                    value: 'otel',
+                    name: 'OpenTelemetry tracing'
                 }
             ]
         },
@@ -116,6 +122,10 @@ async function prompting() {
                 {
                     value: 'kafka',
                     name: 'Apache Kafka'
+                },
+                {
+                    value: 'rabbitmq',
+                    name: 'RabbitMQ'
                 }
             ],
             default: 'none'
@@ -135,6 +145,22 @@ async function prompting() {
                 }
             ],
             default: 'none'
+        },
+        {
+            type: 'list',
+            name: 'javaVersion',
+            message: 'Which Java version do you want to use?',
+            choices: [
+                {
+                    value: '17',
+                    name: 'Java 17'
+                },
+                {
+                    value: '21',
+                    name: 'Java 21 (LTS, virtual threads)'
+                }
+            ],
+            default: saved.javaVersion || '17'
         },
         {
             type: 'list',
@@ -170,7 +196,7 @@ async function prompting() {
                     name: 'Gradle'
                 }
             ],
-            default: 'maven'
+            default: saved.buildTool || 'maven'
         }
     ];
 

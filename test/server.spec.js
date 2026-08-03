@@ -175,13 +175,86 @@ describe('SpringBoot Generator', () => {
             },
             [
                 'myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java',
-                'myservice/docker/docker-compose-keycloak.yml'
+                'myservice/docker/docker-compose-keycloak.yml',
+                'myservice/docker/keycloak/realm-export.json'
             ],
             () => {
                 assert.fileContent('myservice/pom.xml', /spring-boot-starter-oauth2-resource-server/);
                 assert.fileContent('myservice/src/main/resources/application.yml', /oauth2\.resourceserver\.jwt\.issuer-uri/);
+                assert.fileContent('myservice/docker/docker-compose-keycloak.yml', /--import-realm/);
             },
             {} // real build (spotless) validates generated Java syntax
+        );
+    });
+
+    // Data layer: RabbitMQ
+    describe('Generate microservice with RabbitMQ messaging using Maven', () => {
+        testServerGenerator(
+            'creates expected messaging files for RabbitMQ',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "messagingType": "rabbitmq",
+                "features": []
+            },
+            [
+                'myservice/src/main/java/com/mycompany/myservice/config/RabbitMQConfig.java',
+                'myservice/docker/docker-compose-rabbitmq.yml'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /spring-boot-starter-amqp/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /spring\.rabbitmq\.host/);
+            }
+        );
+    });
+
+    // Java version option
+    describe('Generate microservice with Java 21 using Maven', () => {
+        testServerGenerator(
+            'creates expected files for Java 21',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "javaVersion": "21",
+                "features": []
+            },
+            ['myservice/pom.xml'],
+            () => {
+                assert.fileContent('myservice/pom.xml', /<java.version>21<\/java.version>/);
+                assert.fileContent('myservice/Dockerfile', /eclipse-temurin:21-jre-jammy/);
+            }
+        );
+    });
+
+    // OpenTelemetry feature
+    describe('Generate microservice with OpenTelemetry using Maven', () => {
+        testServerGenerator(
+            'creates expected tracing files for OpenTelemetry',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "features": ["otel"]
+            },
+            [
+                'myservice/docker/docker-compose-otel.yml',
+                'myservice/docker/otel/otelcol-config.yml'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /micrometer-tracing-bridge-otel/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /management\.otlp\.tracing\.endpoint/);
+            }
         );
     });
 

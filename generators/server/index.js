@@ -29,6 +29,10 @@ export default class extends BaseGenerator {
         this.configOptions.persistence = this.configOptions.persistence || 'jpa';
         this.configOptions.loggingType = this.configOptions.loggingType || 'none';
         this.configOptions.dbMigrationFormat = this.configOptions.dbMigrationFormat || 'xml';
+        this.configOptions.javaVersion = this.configOptions.javaVersion || constants.JAVA_VERSION;
+        this.configOptions.javaImage = this.configOptions.javaVersion === '21'
+            ? 'eclipse-temurin:21-jre-jammy'
+            : constants.JAVA_IMAGE;
         // MongoDB is a NoSQL database: no JPA/MyBatis persistence and no SQL migrations
         if (this.configOptions.databaseType === 'mongodb') {
             this.configOptions.persistence = 'none';
@@ -236,6 +240,9 @@ export default class extends BaseGenerator {
         if(configOptions.messagingType === 'kafka') {
             mainJavaTemplates.push('config/KafkaConfig.java');
         }
+        if(configOptions.messagingType === 'rabbitmq') {
+            mainJavaTemplates.push('config/RabbitMQConfig.java');
+        }
 
         this.generateMainJavaCode(configOptions, mainJavaTemplates);
 
@@ -306,6 +313,9 @@ export default class extends BaseGenerator {
         if(configOptions.features.includes('elk')) {
             this._generateELKConfig(configOptions);
         }
+        if(configOptions.features.includes('otel')) {
+            this._generateOTelConfig(configOptions);
+        }
         if(configOptions.loggingType === 'loki') {
             this._generateLokiConfig(configOptions);
         }
@@ -318,6 +328,16 @@ export default class extends BaseGenerator {
         if(configOptions.messagingType === 'kafka') {
             this._generateKafkaConfig(configOptions);
         }
+        if(configOptions.messagingType === 'rabbitmq') {
+            this._generateRabbitMQConfig(configOptions);
+        }
+    }
+
+    _generateRabbitMQConfig(configOptions) {
+        const resTemplates = [
+            'docker/docker-compose-rabbitmq.yml'
+        ];
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
     _generateKafkaConfig(configOptions) {
@@ -336,7 +356,8 @@ export default class extends BaseGenerator {
 
     _generateKeycloakConfig(configOptions) {
         const resTemplates = [
-            'docker/docker-compose-keycloak.yml'
+            'docker/docker-compose-keycloak.yml',
+            'docker/keycloak/realm-export.json'
         ];
         this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
@@ -374,6 +395,14 @@ export default class extends BaseGenerator {
             this.templatePath('app/docker/grafana/provisioning/dashboards'),
             this.destinationPath('docker/grafana/provisioning/dashboards')
         );
+    }
+
+    _generateOTelConfig(configOptions) {
+        const resTemplates = [
+            'docker/docker-compose-otel.yml',
+            'docker/otel/otelcol-config.yml'
+        ];
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
     _generateLokiConfig(configOptions) {

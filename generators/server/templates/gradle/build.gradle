@@ -16,8 +16,8 @@ apply from: "gradle/code-quality.gradle"
 
 group = "<%= packageName %>"
 version = "<%= DEFAULT_APP_VERSION %>"
-sourceCompatibility = <%= JAVA_VERSION %>
-targetCompatibility = <%= JAVA_VERSION %>
+sourceCompatibility = <%= javaVersion %>
+targetCompatibility = <%= javaVersion %>
 
 configurations {
     compileOnly {
@@ -96,6 +96,13 @@ dependencies {
     <%_ } _%>
     <%_ if (messagingType == "kafka") { _%>
     implementation "org.springframework.kafka:spring-kafka"
+    <%_ } _%>
+    <%_ if (messagingType == "rabbitmq") { _%>
+    implementation "org.springframework.boot:spring-boot-starter-amqp"
+    <%_ } _%>
+    <%_ if (features.includes("otel")) { _%>
+    implementation "io.micrometer:micrometer-tracing-bridge-otel"
+    implementation "io.opentelemetry:opentelemetry-exporter-otlp"
     <%_ } _%>
 
     developmentOnly "org.springframework.boot:spring-boot-devtools"

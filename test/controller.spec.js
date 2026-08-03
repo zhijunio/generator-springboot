@@ -18,7 +18,7 @@ describe('SpringBoot Generator', () => {
                     fse.copySync(path.join(__dirname, '../test/templates/basic-microservice-flyway'), dir);
                 })
                 .withArguments(['Customer'])
-                .withOptions({ 'base-path': '/api/customers', 'formatCode': false });
+                .withOptions({ 'base-path': '/api/customers', 'formatCode': true });
         });
 
         it('creates expected default files for CRUD API with Flyway', () => {
