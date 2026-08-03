@@ -4,7 +4,7 @@ const MARIADB_IMAGE_VERSION = '11.7.1';
 const MYSQL_IMAGE_VERSION = '9.1.0';
 const JAVA_IMAGE_VERSION = '17.0.13_11-jre-jammy';
 
-module.exports = {
+export default {
     JAVA_VERSION: '17',
     MAVEN_VERSION: '3.9.9',
     GRADLE_VERSION: '8.11.1',

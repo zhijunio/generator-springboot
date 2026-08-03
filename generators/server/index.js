@@ -1,11 +1,11 @@
-'use strict';
-const BaseGenerator = require('../base-generator');
-const constants = require('../constants');
-const prompts = require('./prompts');
-const path = require('path');
-const _ = require('lodash');
 
-module.exports = class extends BaseGenerator {
+import BaseGenerator from '../base-generator.js';
+import constants from '../constants.js';
+import prompts from './prompts.js';
+import path from 'path';
+import _ from 'lodash';
+
+export default class extends BaseGenerator {
 
     constructor(args, opts) {
         super(args, opts);
@@ -24,8 +24,11 @@ module.exports = class extends BaseGenerator {
         this.destinationRoot(path.join(this.destinationRoot(), '/'+this.configOptions.appName));
         this.config.set(this.configOptions);
         Object.assign(this.configOptions, constants);
-        this.configOptions.formatCode = this.options.formatCode !== false
+        this.configOptions.formatCode = this.options.formatCode !== false;
         this.configOptions.appVarName = _.replace(_.startCase(this.configOptions.appName)," ","");
+        this.configOptions.persistence = this.configOptions.persistence || 'jpa';
+        this.configOptions.loggingType = this.configOptions.loggingType || 'none';
+        this.configOptions.dbMigrationFormat = this.configOptions.dbMigrationFormat || 'xml';
         console.log("this.configOptions.appVarName: " +this.configOptions.appVarName)
     }
 

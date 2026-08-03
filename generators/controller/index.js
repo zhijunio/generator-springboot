@@ -1,9 +1,8 @@
-'use strict';
-const BaseGenerator = require('../base-generator');
-const constants = require('../constants');
-const _ = require('lodash');
+import BaseGenerator from '../base-generator.js';
+import constants from '../constants.js';
+import _ from 'lodash';
 
-module.exports = class extends BaseGenerator {
+export default class extends BaseGenerator {
 
     constructor(args, opts) {
         super(args, opts);

@@ -1,11 +1,11 @@
-'use strict';
-const Generator = require('yeoman-generator');
-const chalk = require('chalk');
-const _ = require('lodash');
-const log = console.log;
-const shell = require('shelljs');
+import Generator from 'yeoman-generator';
+import chalk from 'chalk';
+import _ from 'lodash';
+import shell from 'shelljs';
 
-module.exports = class extends Generator {
+const log = console.log;
+
+export default class extends Generator {
 
     constructor(args, opts) {
         super(args, opts);

@@ -1,20 +1,24 @@
-const path = require('path');
-const assert = require('yeoman-assert');
-const helpers = require('yeoman-test');
-const fse = require('fs-extra');
+import path from 'path';
+import assert from 'yeoman-assert';
+import { YeomanTest } from 'yeoman-test';
+import fse from 'fs-extra';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const helpers = new YeomanTest();
 
 describe('SpringBoot Generator', () => {
 
     describe('Generate CRUD API with Flyway', () => {
-        before(done => {
-            helpers
-                .run(path.join(__dirname, '../generators/controller'))
+        before(async function() {
+            this.timeout(30000);
+            await helpers.run(path.join(__dirname, '../generators/controller/index.js'))
                 .inTmpDir(dir => {
                     fse.copySync(path.join(__dirname, '../test/templates/basic-microservice-flyway'), dir);
                 })
                 .withArguments(['Customer'])
-                .withOptions({ 'base-path': '/api/customers', 'formatCode': false })
-                .on('end', done);
+                .withOptions({ 'base-path': '/api/customers', 'formatCode': false });
         });
 
         it('creates expected default files for CRUD API with Flyway', () => {
@@ -27,15 +31,14 @@ describe('SpringBoot Generator', () => {
     });
 
     describe('Generate CRUD API with Liquibase', () => {
-        before(done => {
-            helpers
-                .run(path.join(__dirname, '../generators/controller'))
+        before(async function() {
+            this.timeout(30000);
+            await helpers.run(path.join(__dirname, '../generators/controller/index.js'))
                 .inTmpDir(dir => {
                     fse.copySync(path.join(__dirname, '../test/templates/basic-microservice-liquibase'), dir);
                 })
                 .withArguments(['Customer'])
-                .withOptions({ 'base-path': '/api/customers', 'formatCode': false })
-                .on('end', done);
+                .withOptions({ 'base-path': '/api/customers', 'formatCode': false });
         });
 
         it('creates expected default files for CRUD API with Liquibase', () => {

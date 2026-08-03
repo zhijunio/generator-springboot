@@ -1,8 +1,6 @@
-'use strict';
+import BaseGenerator from '../base-generator.js';
 
-const BaseGenerator = require('../base-generator');
-
-module.exports = class extends BaseGenerator {
+export default class extends BaseGenerator {
 
     constructor(args, opts) {
         super(args, opts);
@@ -10,7 +8,7 @@ module.exports = class extends BaseGenerator {
     }
 
     default() {
-        this.composeWith(require.resolve('../server'), {
+        this.composeWith(new URL('../server/index.js', import.meta.url).pathname, {
             configOptions: this.configOptions
         });
     }
