@@ -286,13 +286,13 @@ export default class extends BaseGenerator {
 
     _generateDockerComposeFiles(configOptions) {
         this._generateAppDockerComposeFile(configOptions);
-        if(configOptions.features.includes('monitor')) {
+        if(configOptions.features.includes('monitoring')) {
             this._generateMonitoringConfig(configOptions);
         }
         if(configOptions.features.includes('zipkin')) {
             this._generateZipkinConfig(configOptions);
         }
-        if(configOptions.loggingType === 'elk') {
+        if(configOptions.features.includes('elk')) {
             this._generateELKConfig(configOptions);
         }
         if(configOptions.loggingType === 'loki') {
@@ -306,28 +306,28 @@ export default class extends BaseGenerator {
             'docker-compose-app.yml',
             'docker-compose-sonar.yml'
         ];
-        this.generateFiles(configOptions, resTemplates, 'app/','./');
+        this.generateFiles(configOptions, resTemplates, 'app/', 'docker/');
     }
 
     _generateELKConfig(configOptions) {
         const resTemplates = [
-            'docker-compose-elk.yml',
+            'docker/docker-compose-elk.yml',
             'docker/elk/logstash.conf',
             'docker/elk/elasticsearch.yml',
             'docker/elk/logstash.yml',
             'docker/elk/kibana.yml',
         ];
-        this.generateFiles(configOptions, resTemplates, 'app/','./');
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
     _generateMonitoringConfig(configOptions) {
         const resTemplates = [
-            'docker-compose-monitor.yml',
+            'docker/docker-compose-monitoring.yml',
             'docker/prometheus/prometheus.yml',
             'docker/grafana/provisioning/datasources/datasource.yml',
             'docker/tempo/tempo.yml',
         ];
-        this.generateFiles(configOptions, resTemplates, 'app/','./');
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
 
         this.fs.copy(
             this.templatePath('app/docker/grafana/provisioning/dashboards'),
@@ -337,16 +337,16 @@ export default class extends BaseGenerator {
 
     _generateLokiConfig(configOptions) {
         const resTemplates = [
-            'docker-compose-loki.yml'
+            'docker/docker-compose-loki.yml'
         ];
-        this.generateFiles(configOptions, resTemplates, 'app/','./');
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
     _generateZipkinConfig(configOptions) {
         const resTemplates = [
-            'docker-compose-zipkin.yml'
+            'docker/docker-compose-zipkin.yml'
         ];
-        this.generateFiles(configOptions, resTemplates, 'app/','./');
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
 };

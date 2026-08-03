@@ -12,7 +12,7 @@ describe('SpringBoot Generator', () => {
         it(testName, async () => {
             const helpers = new YeomanTest();
             await helpers
-                helpers.create(path.join(__dirname, '../generators/server'))
+                .create(path.join(__dirname, '../generators/server'))
                 .withPrompts(prompts)
                 .run();
 
