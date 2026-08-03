@@ -27,6 +27,10 @@ describe('SpringBoot Generator', () => {
             assert.file('src/main/java/com/mycompany/myservice/service/CustomerService.java');
             assert.file('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java');
             assert.file('src/main/resources/db/migration/postgresql/V2__create_customer_table.sql');
+
+            // Content assertions: entity class name and migration DDL use the entity/table name
+            assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', /public class Customer/);
+            assert.fileContent('src/main/resources/db/migration/postgresql/V2__create_customer_table.sql', /create table IF NOT EXISTS  customer/);
         });
     });
 
@@ -47,6 +51,10 @@ describe('SpringBoot Generator', () => {
             assert.file('src/main/java/com/mycompany/myservice/service/CustomerService.java');
             assert.file('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java');
             assert.file('src/main/resources/db/changelog/migration/02-create_customer_table.xml');
+
+            // Content assertions: entity class name and liquibase changelog reference the table
+            assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', /public class Customer/);
+            assert.fileContent('src/main/resources/db/changelog/migration/02-create_customer_table.xml', /customer/);
         });
     });
 });

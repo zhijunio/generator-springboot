@@ -2,18 +2,20 @@ import path from 'path';
 import assert from 'yeoman-assert';
 import { YeomanTest } from 'yeoman-test';
 import { fileURLToPath } from 'url';
+import constants from '../generators/constants.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 describe('SpringBoot Generator', () => {
     // Helper function to test server generator with different configurations
-    const testServerGenerator = async (testName, prompts, expectedFiles, additionalChecks) => {
+    const testServerGenerator = async (testName, prompts, expectedFiles, additionalChecks, options = { formatCode: false }) => {
         it(testName, async () => {
             const helpers = new YeomanTest();
             await helpers
                 .create(path.join(__dirname, '../generators/server'))
                 .withPrompts(prompts)
+                .withOptions(options)
                 .run();
 
             // Check expected files exist
@@ -54,7 +56,14 @@ describe('SpringBoot Generator', () => {
                 "features": []
             },
             ['myservice/pom.xml',
-             'myservice/src/test/java/com/mycompany/myservice/SchemaValidationTest.java']
+             'myservice/src/test/java/com/mycompany/myservice/SchemaValidationTest.java'],
+            () => {
+                // Content assertions: pom.xml carries the configured framework versions
+                assert.fileContent('myservice/pom.xml', new RegExp(`<java.version>${constants.JAVA_VERSION}</java.version>`));
+                assert.fileContent('myservice/pom.xml', new RegExp(`<springdoc-openapi.version>${constants.SPRINGDOC_OPENAPI_VERSION}</springdoc-openapi.version>`));
+                // application.yml carries flyway migration configuration
+                assert.fileContent('myservice/src/main/resources/application.yml', /spring\.flyway\.locations/);
+            }
         );
     });
 
@@ -93,7 +102,14 @@ describe('SpringBoot Generator', () => {
                 'myservice/docker/docker-compose-monitoring.yml',
                 'myservice/src/main/java/com/mycompany/myservice/config/MetricConfig.java',
                 'myservice/src/main/java/com/mycompany/myservice/util/AggravateMetricsEndpoint.java'
-            ]
+            ],
+            () => {
+                // Content assertions: full-featured project wires monitoring + ELK + cloud deps
+                assert.fileContent('myservice/pom.xml', new RegExp(`<version>${constants.SPRING_BOOT_VERSION}</version>`));
+                assert.fileContent('myservice/pom.xml', /springdoc-openapi/);
+                assert.fileContent('myservice/docker/docker-compose-monitoring.yml', /grafana/);
+            },
+            {} // keep real build (formatCode) for this end-to-end case
         );
     });
 
