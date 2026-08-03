@@ -5,7 +5,7 @@ const JAVA_IMAGE_VERSION = '17.0.13_11-jre-jammy';
 
 export default {
     JAVA_VERSION: '17',
-    MAVEN_VERSION: '3.9.9',
+    MAVEN_VERSION: '3.9.16',
     GRADLE_VERSION: '8.11.1',
     DEFAULT_APP_VERSION: '0.0.1-SNAPSHOT',
     SPRING_BOOT_VERSION: '3.4.4',
