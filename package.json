@@ -25,7 +25,7 @@
   "main": "generators/app/index.js",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "test": "npm run test:unit -- \"test/**/*.spec.js\" \"test/*.spec.js\" --no-insight",

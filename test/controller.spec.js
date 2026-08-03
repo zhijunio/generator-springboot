@@ -29,11 +29,11 @@ describe('SpringBoot Generator', () => {
             assert.file('src/main/resources/db/migration/postgresql/V2__create_customer_table.sql');
 
             // Content assertions: entity class name and migration DDL use the entity/table name
-            assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', /public class Customer/);
-            assert.fileContent('src/main/resources/db/migration/postgresql/V2__create_customer_table.sql', /create table IF NOT EXISTS  customer/);
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /@RequestParam\(defaultValue = "0"\) int page/);
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /@RequestParam\(defaultValue = "10"\) int size/);
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /PageRequest\.of\(page, size\)/);
+            assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', "public class Customer");
+            assert.fileContent('src/main/resources/db/migration/postgresql/V2__create_customer_table.sql', "create table IF NOT EXISTS  customer");
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', '@RequestParam(defaultValue = "0") int page');
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', '@RequestParam(defaultValue = "10") int size');
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', "PageRequest.of(page, size)");
         });
     });
 
@@ -55,12 +55,15 @@ describe('SpringBoot Generator', () => {
             assert.file('src/main/resources/db/changelog/migration/02-create_customer_table.xml');
 
             // Content assertions: entity class name and liquibase changelog reference the table
-            assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', /public class Customer/);
-            assert.fileContent('src/main/resources/db/changelog/migration/02-create_customer_table.xml', /customer/);
+            assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', "public class Customer");
+            assert.fileContent('src/main/resources/db/changelog/migration/02-create_customer_table.xml', "customer");
             // Enhanced controller: OpenAPI annotations and search param
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /@Operation/);
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /String search/);
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /@Tag\(name = "Customer", description = "CRUD operations for Customer"\)/);
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', "@Operation");
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', "String search");
+            assert.fileContent(
+                'src/main/java/com/mycompany/myservice/web/controller/CustomerController.java',
+                '@Tag(name = "Customer", description = "CRUD operations for Customer")'
+            );
         });
     });
 
@@ -79,9 +82,9 @@ describe('SpringBoot Generator', () => {
 
         it('uses the no-sequence Flyway migration and keeps controller search support', () => {
             assert.file('src/main/resources/db/migration/mysql/V2__create_customer_table.sql');
-            assert.fileContent('src/main/resources/db/migration/mysql/V2__create_customer_table.sql', /auto_increment/);
-            assert.noFileContent('src/main/resources/db/migration/mysql/V2__create_customer_table.sql', /sequence/i);
-            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /String search/);
+            assert.fileContent('src/main/resources/db/migration/mysql/V2__create_customer_table.sql', "auto_increment");
+            assert.noFileContent('src/main/resources/db/migration/mysql/V2__create_customer_table.sql', "sequence");
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', "String search");
         });
     });
 
@@ -100,8 +103,8 @@ describe('SpringBoot Generator', () => {
 
         it('uses the MariaDB-specific Flyway migration syntax', () => {
             assert.file('src/main/resources/db/migration/mariadb/V2__create_customer_table.sql');
-            assert.fileContent('src/main/resources/db/migration/mariadb/V2__create_customer_table.sql', /DEFAULT nextval\(`customer_seq`\)/);
-            assert.fileContent('src/main/resources/db/migration/mariadb/V2__create_customer_table.sql', /text varchar\(1024\) not null/);
+            assert.fileContent('src/main/resources/db/migration/mariadb/V2__create_customer_table.sql', 'DEFAULT nextval(`customer_seq`)');
+            assert.fileContent('src/main/resources/db/migration/mariadb/V2__create_customer_table.sql', 'text varchar(1024) not null');
         });
     });
 
@@ -119,19 +122,19 @@ describe('SpringBoot Generator', () => {
         it('propagates the custom base path through controller templates', () => {
             assert.fileContent(
                 'src/main/java/com/mycompany/myservice/web/controller/CustomerController.java',
-                /@RequestMapping\("\/api\/v1\/customers"\)/
+                '@RequestMapping("/api/v1/customers")'
             );
             assert.fileContent(
                 'src/main/java/com/mycompany/myservice/web/controller/CustomerController.java',
-                /path\("\/api\/v1\/customers\/\{id\}"\)/
+                'path("/api/v1/customers/{id}")'
             );
             assert.fileContent(
                 'src/test/java/com/mycompany/myservice/web/controller/CustomerControllerTest.java',
-                /perform\(get\("\/api\/v1\/customers"\)\)/
+                'perform(get("/api/v1/customers"))'
             );
             assert.fileContent(
                 'src/test/java/com/mycompany/myservice/web/controller/CustomerControllerIT.java',
-                /perform\(get\("\/api\/v1\/customers"\)\)/
+                'perform(get("/api/v1/customers"))'
             );
         });
     });
@@ -152,15 +155,15 @@ describe('SpringBoot Generator', () => {
         it('switches controller tests to the MyBatis branch', () => {
             assert.fileContent(
                 'src/test/java/com/mycompany/myservice/service/CustomerServiceTest.java',
-                /ReflectionTestUtils\.setField\(customerService, "baseMapper", customerRepository\)/
+                'ReflectionTestUtils.setField(customerService, "baseMapper", customerRepository)'
             );
             assert.fileContent(
                 'src/test/java/com/mycompany/myservice/web/controller/CustomerControllerIT.java',
-                /Wrappers\.query\(\)/
+                'Wrappers.query()'
             );
             assert.fileContent(
                 'src/main/java/com/mycompany/myservice/web/controller/CustomerController.java',
-                /String search/
+                'String search'
             );
         });
     });
@@ -177,7 +180,7 @@ describe('SpringBoot Generator', () => {
                             databaseType: 'mongodb'
                         }
                     }),
-                /MongoDB projects are not supported/
+                'MongoDB projects are not supported'
             );
         });
     });
