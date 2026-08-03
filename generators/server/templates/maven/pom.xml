@@ -19,6 +19,7 @@
 
     <properties>
         <java.version><%= javaVersion %></java.version>
+        <maven.compiler.release><%= javaVersion %></maven.compiler.release>
 
         <spring-cloud.version><%= SPRING_CLOUD_VERSION %></spring-cloud.version>
         <%_ if (persistence === 'mybatis') { _%>
@@ -58,10 +59,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <%_ if (SPRING_BOOT_VERSION.startsWith('4.')) { _%>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+        </dependency>
+        <%_ } else { _%>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+        <%_ } _%>
 
         <%_ if (authenticationType === 'jwt') { _%>
         <!-- Security: JWT -->
@@ -272,12 +280,18 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <%_ if (testcontainersVersion) { _%>
+            <version><%= testcontainersVersion %></version>
+            <%_ } _%>
             <scope>test</scope>
         </dependency>
         <%_ if (databaseType === 'postgresql') { _%>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+            <%_ if (testcontainersVersion) { _%>
+            <version><%= testcontainersVersion %></version>
+            <%_ } _%>
             <scope>test</scope>
         </dependency>
         <%_ } _%>
@@ -285,6 +299,9 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
+            <%_ if (testcontainersVersion) { _%>
+            <version><%= testcontainersVersion %></version>
+            <%_ } _%>
             <scope>test</scope>
         </dependency>
         <%_ } _%>
@@ -292,6 +309,9 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mariadb</artifactId>
+            <%_ if (testcontainersVersion) { _%>
+            <version><%= testcontainersVersion %></version>
+            <%_ } _%>
             <scope>test</scope>
         </dependency>
         <%_ } _%>
@@ -299,6 +319,9 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
+            <%_ if (testcontainersVersion) { _%>
+            <version><%= testcontainersVersion %></version>
+            <%_ } _%>
             <scope>test</scope>
         </dependency>
         <%_ } _%>

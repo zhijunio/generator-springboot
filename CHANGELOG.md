@@ -1,5 +1,15 @@
 # Change Log
 
+## Unreleased
+* Added Spring Boot 4.1.0 support with Java 25 compatibility
+* Added Java 25 as a selectable generator option
+* Added preset support for secure-api, event-driven, and observability-heavy
+* Promoted secure-api, event-driven, and observability-heavy presets to Java 25 + Spring Boot 4.1.0
+* Added Maven compiler release binding for generated projects
+* Added todo project generation and controller verification flow
+* Removed unused MkDocs docs site files and docs publish workflow
+* Simplified Jackson and AOP wiring for Spring Boot 4.x generated projects
+
 ## Version 0.3.0
 * Added JWT authentication (Spring Security + jjwt)
 * Added Keycloak authentication (OAuth2 Resource Server) with realm auto-import

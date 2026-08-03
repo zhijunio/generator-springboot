@@ -36,7 +36,7 @@ spring.kafka.consumer.group-id: <%= appName %>
 spring.rabbitmq.host: localhost
 spring.rabbitmq.port: 5672
 spring.rabbitmq.username: guest
-spring.rabbitmq.password: guest
+spring.rabbitmq.password: <%= rabbitmqPassword %>
 <%_ } _%>
 <%_ if (databaseType === 'mongodb') { _%>
 ################ MongoDB #####################
@@ -60,7 +60,7 @@ spring.datasource.driver-class-name: org.mariadb.jdbc.Driver
 spring.datasource.url: jdbc:mariadb://localhost:3306/appdb
   <%_ } _%>
 spring.datasource.username: appuser
-spring.datasource.password: secret
+spring.datasource.password: <%= databasePassword %>
 <%_ } _%>
   
   <%_ if (persistence === 'jpa') { _%>
@@ -91,8 +91,8 @@ spring.flyway.locations: classpath:/db/migration/{vendor}
   <%_ } _%>
 
 ################ Actuator #####################
-management.endpoints.web.exposure.include: configprops,env,health,info,logfile,loggers,metrics,prometheus,aggmetrics
-management.endpoint.health.show-details: always
+management.endpoints.web.exposure.include: health,info,metrics,prometheus,aggmetrics
+management.endpoint.health.show-details: when_authorized
   <%_ if (features.includes('zipkin') || features.includes('monitor') ) { _%>
 management.tracing.sampling.probability: 1.0
 management.zipkin.tracing.endpoint: http://localhost:9411/api/v2/spans

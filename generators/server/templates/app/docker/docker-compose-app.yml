@@ -20,8 +20,10 @@ services:
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
       - SPRING_DATASOURCE_URL=jdbc:mariadb://<%= databaseType %>:3306/appdb
       <%_ } _%>
+      <%_ if (databaseType !== 'mongodb') { _%>
       - SPRING_DATASOURCE_USERNAME=appuser
-      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_PASSWORD=<%= databasePassword %>
+      <%_ } _%>
       <%_ if (loggingType === 'loki' ) { _%>
       - APPLICATION_LOKI_URL=http://loki:3100/loki/api/v1/push
       <%_ } _%>

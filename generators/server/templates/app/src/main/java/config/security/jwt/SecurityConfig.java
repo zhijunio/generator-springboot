@@ -34,10 +34,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/actuator/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/actuator/health",
+                                "/actuator/info"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -49,7 +47,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.builder()
                 .username("admin")
-                .password(passwordEncoder.encode("admin123"))
+                .password(passwordEncoder.encode("<%= adminPassword %>"))
                 .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(admin);

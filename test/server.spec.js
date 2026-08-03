@@ -1,22 +1,32 @@
 import path from 'path';
 import assert from 'yeoman-assert';
-import { YeomanTest } from 'yeoman-test';
+import fse from 'fs-extra';
 import { fileURLToPath } from 'url';
 import constants from '../generators/constants.js';
+import { runServerGenerator } from './helpers/yeoman-runner.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 describe('SpringBoot Generator', () => {
+    const serverGeneratorPath = path.join(__dirname, '../generators/server');
+
     // Helper function to test server generator with different configurations
-    const testServerGenerator = async (testName, prompts, expectedFiles, additionalChecks, options = { formatCode: false }) => {
+    const testServerGenerator = async (
+        testName,
+        prompts,
+        expectedFiles,
+        additionalChecks,
+        options = { formatCode: false },
+        setup
+    ) => {
         it(testName, async () => {
-            const helpers = new YeomanTest();
-            await helpers
-                .create(path.join(__dirname, '../generators/server'))
-                .withPrompts(prompts)
-                .withOptions(options)
-                .run();
+            await runServerGenerator({
+                generatorPath: serverGeneratorPath,
+                prompts,
+                options,
+                setup
+            });
 
             // Check expected files exist
             expectedFiles.forEach(file => assert.file(file));
@@ -128,6 +138,28 @@ describe('SpringBoot Generator', () => {
         );
     });
 
+    describe('Generate microservice with Spring Boot 4.1.0 using Maven', () => {
+        testServerGenerator(
+            'creates expected files for Spring Boot 4.1.0',
+            {
+                "appName": "boot4service",
+                "packageName": "com.mycompany.boot4service",
+                "packageFolder": "com/mycompany/boot4service",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "springBootVersion": "4.1.0",
+                "features": []
+            },
+            ['boot4service/pom.xml'],
+            () => {
+                assert.fileContent('boot4service/pom.xml', /<version>4\.1\.0<\/version>/);
+                assert.fileContent('boot4service/pom.xml', /<spring-cloud.version>2025\.1\.2<\/spring-cloud.version>/);
+                assert.fileContent('boot4service/README.md', /Spring Boot: 4\.1\.0/);
+            }
+        );
+    });
+
     // Security: JWT based generation
     describe('Generate microservice with JWT authentication using Maven', () => {
         testServerGenerator(
@@ -144,6 +176,7 @@ describe('SpringBoot Generator', () => {
             },
             [
                 'myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java',
+                'myservice/src/main/java/com/mycompany/myservice/config/security/OpenApiSecurityConfig.java',
                 'myservice/src/main/java/com/mycompany/myservice/config/security/JwtService.java',
                 'myservice/src/main/java/com/mycompany/myservice/config/security/JwtAuthenticationFilter.java',
                 'myservice/src/main/java/com/mycompany/myservice/web/controller/AuthController.java',
@@ -154,6 +187,15 @@ describe('SpringBoot Generator', () => {
                 assert.fileContent('myservice/pom.xml', /spring-boot-starter-security/);
                 assert.fileContent('myservice/pom.xml', new RegExp(`<jjwt.version>${constants.JJWT_VERSION}</jjwt.version>`));
                 assert.fileContent('myservice/src/main/resources/application.yml', /application\.jwt\.secret/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /management\.endpoints\.web\.exposure\.include: health,info,metrics,prometheus,aggmetrics/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /management\.endpoint\.health\.show-details: when_authorized/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /"\/actuator\/health"/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /"\/actuator\/info"/);
+                assert.noFileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /\/actuator\/\*\*/);
+                assert.noFileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /\/swagger-ui/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/OpenApiSecurityConfig.java', /@Profile\(PROFILE_NOT_PROD\)/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/OpenApiSecurityConfig.java', /securityMatcher\("\/v3\/api-docs\/\*\*", "\/swagger-ui\/\*\*", "\/swagger-ui\.html"\)/);
+                assert.noFileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /admin123/);
                 // JWT secret must be project-specific, not the shared default
                 assert.noFileContent('myservice/src/main/resources/application.yml', /c2VjcmV0LWtleS1mb3Itand0/);
             },
@@ -201,12 +243,23 @@ describe('SpringBoot Generator', () => {
             },
             [
                 'myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java',
+                'myservice/src/main/java/com/mycompany/myservice/config/security/OpenApiSecurityConfig.java',
                 'myservice/docker/docker-compose-keycloak.yml',
                 'myservice/docker/keycloak/realm-export.json'
             ],
             () => {
                 assert.fileContent('myservice/pom.xml', /spring-boot-starter-oauth2-resource-server/);
                 assert.fileContent('myservice/src/main/resources/application.yml', /oauth2\.resourceserver\.jwt\.issuer-uri/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /management\.endpoints\.web\.exposure\.include: health,info,metrics,prometheus,aggmetrics/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /management\.endpoint\.health\.show-details: when_authorized/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /"\/actuator\/health"/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /"\/actuator\/info"/);
+                assert.noFileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /\/actuator\/\*\*/);
+                assert.noFileContent('myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java', /\/swagger-ui/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/OpenApiSecurityConfig.java', /@Profile\(PROFILE_NOT_PROD\)/);
+                assert.fileContent('myservice/src/main/java/com/mycompany/myservice/config/security/OpenApiSecurityConfig.java', /securityMatcher\("\/v3\/api-docs\/\*\*", "\/swagger-ui\/\*\*", "\/swagger-ui\.html"\)/);
+                assert.noFileContent('myservice/docker/docker-compose-keycloak.yml', /KEYCLOAK_ADMIN_PASSWORD=admin/);
+                assert.noFileContent('myservice/docker/keycloak/realm-export.json', /admin123/);
                 assert.fileContent('myservice/docker/docker-compose-keycloak.yml', /--import-realm/);
             },
             {} // real build (spotless) validates generated Java syntax
@@ -234,6 +287,7 @@ describe('SpringBoot Generator', () => {
             () => {
                 assert.fileContent('myservice/pom.xml', /spring-boot-starter-amqp/);
                 assert.fileContent('myservice/src/main/resources/application.yml', /spring\.rabbitmq\.host/);
+                assert.noFileContent('myservice/src/main/resources/application.yml', /spring\.rabbitmq\.password: guest/);
             }
         );
     });
@@ -256,6 +310,49 @@ describe('SpringBoot Generator', () => {
             () => {
                 assert.fileContent('myservice/pom.xml', /<java.version>21<\/java.version>/);
                 assert.fileContent('myservice/Dockerfile', /eclipse-temurin:21-jre-jammy/);
+            }
+        );
+    });
+
+    describe('Generate microservice with Java 25 using Maven', () => {
+        testServerGenerator(
+            'creates expected files for Java 25',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "springBootVersion": "4.1.0",
+                "javaVersion": "25",
+                "features": []
+            },
+            ['myservice/pom.xml'],
+            () => {
+                assert.fileContent('myservice/pom.xml', /<java.version>25<\/java.version>/);
+                assert.fileContent('myservice/Dockerfile', /eclipse-temurin:25-jre-jammy/);
+            }
+        );
+    });
+
+    describe('Generate microservice with Java 25 using Maven and default Spring Boot', () => {
+        testServerGenerator(
+            'promotes Spring Boot to 4.1.0 when Java 25 is selected',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "javaVersion": "25",
+                "features": []
+            },
+            ['myservice/pom.xml'],
+            () => {
+                assert.fileContent('myservice/pom.xml', /<version>4\.1\.0<\/version>/);
+                assert.fileContent('myservice/pom.xml', /<maven\.compiler\.release>25<\/maven\.compiler\.release>/);
             }
         );
     });
@@ -410,6 +507,170 @@ describe('SpringBoot Generator', () => {
                 'myservice/docker/docker-compose-elk.yml',
                 'myservice/docker/docker-compose-monitoring.yml'
             ]
+        );
+    });
+
+    describe('Generate secure API preset', () => {
+        testServerGenerator(
+            'creates a secure API from the preset with minimal prompts',
+            {
+                "appName": "secureapi",
+                "packageName": "com.mycompany.secureapi",
+                "projectPreset": "secure-api",
+                "packageFolder": "com/mycompany/secureapi"
+            },
+            [
+                'secureapi/pom.xml',
+                'secureapi/Dockerfile',
+                'secureapi/src/main/java/com/mycompany/secureapi/config/security/SecurityConfig.java',
+                'secureapi/src/main/java/com/mycompany/secureapi/web/controller/AuthController.java',
+                'secureapi/src/main/java/com/mycompany/secureapi/model/request/LoginRequest.java',
+                'secureapi/src/main/java/com/mycompany/secureapi/model/response/LoginResponse.java'
+            ],
+            () => {
+                assert.fileContent('secureapi/Dockerfile', /eclipse-temurin:25-jre-jammy/);
+                assert.fileContent('secureapi/pom.xml', /<version>4\.1\.0<\/version>/);
+                assert.fileContent('secureapi/pom.xml', /spring-boot-starter-security/);
+                assert.fileContent('secureapi/src/main/resources/application.yml', /application\.jwt\.secret/);
+                assert.noFile('secureapi/src/main/java/com/mycompany/secureapi/config/CacheConfig.java');
+                assert.noFile('secureapi/src/main/java/com/mycompany/secureapi/config/KafkaConfig.java');
+            }
+        );
+    });
+
+    describe('Generate minimal preset', () => {
+        testServerGenerator(
+            'creates the minimal API from the preset',
+            {
+                "appName": "minimalapi",
+                "packageName": "com.mycompany.minimalapi",
+                "projectPreset": "minimal",
+                "packageFolder": "com/mycompany/minimalapi"
+            },
+            [
+                'minimalapi/pom.xml',
+                'minimalapi/Dockerfile',
+                'minimalapi/src/main/resources/application.yml'
+            ],
+            () => {
+                assert.fileContent('minimalapi/pom.xml', /<java.version>17<\/java.version>/);
+                assert.noFile('minimalapi/src/main/java/com/mycompany/minimalapi/config/CacheConfig.java');
+                assert.noFile('minimalapi/src/main/java/com/mycompany/minimalapi/config/KafkaConfig.java');
+                assert.noFile('minimalapi/src/main/java/com/mycompany/minimalapi/config/LokiConfig.java');
+                assert.noFile('minimalapi/src/main/java/com/mycompany/minimalapi/config/security/SecurityConfig.java');
+                assert.noFile('minimalapi/src/main/java/com/mycompany/minimalapi/config/MetricConfig.java');
+                assert.noFile('minimalapi/src/main/java/com/mycompany/minimalapi/util/AggravateMetricsEndpoint.java');
+                assert.noFile('minimalapi/docker/docker-compose-elk.yml');
+                assert.noFile('minimalapi/docker/docker-compose-monitoring.yml');
+                assert.noFile('minimalapi/docker/docker-compose-otel.yml');
+            }
+        );
+    });
+
+    describe('Generate event-driven preset', () => {
+        testServerGenerator(
+            'creates Kafka and Redis from the preset',
+            {
+                "appName": "eventservice",
+                "packageName": "com.mycompany.eventservice",
+                "projectPreset": "event-driven",
+                "packageFolder": "com/mycompany/eventservice"
+            },
+            [
+                'eventservice/pom.xml',
+                'eventservice/src/main/java/com/mycompany/eventservice/config/CacheConfig.java',
+                'eventservice/src/main/java/com/mycompany/eventservice/config/KafkaConfig.java',
+                'eventservice/docker/docker-compose-redis.yml',
+                'eventservice/docker/docker-compose-kafka.yml'
+            ],
+            () => {
+                assert.fileContent('eventservice/Dockerfile', /eclipse-temurin:25-jre-jammy/);
+                assert.fileContent('eventservice/pom.xml', /<version>4\.1\.0<\/version>/);
+                assert.fileContent('eventservice/pom.xml', /<java.version>25<\/java.version>/);
+                assert.fileContent('eventservice/pom.xml', /spring-boot-starter-data-redis/);
+                assert.fileContent('eventservice/pom.xml', /spring-kafka/);
+                assert.fileContent('eventservice/src/main/resources/application.yml', /spring\.data\.redis\.host/);
+                assert.fileContent('eventservice/src/main/resources/application.yml', /spring\.kafka\.bootstrap-servers/);
+                assert.noFile('eventservice/src/main/java/com/mycompany/eventservice/config/security/SecurityConfig.java');
+                assert.noFile('eventservice/src/main/java/com/mycompany/eventservice/config/LokiConfig.java');
+            }
+        );
+    });
+
+    describe('Generate observability-heavy preset', () => {
+        testServerGenerator(
+            'creates the observability stack from the preset',
+            {
+                "appName": "obsservice",
+                "packageName": "com.mycompany.obsservice",
+                "projectPreset": "observability-heavy",
+                "packageFolder": "com/mycompany/obsservice"
+            },
+            [
+                'obsservice/pom.xml',
+                'obsservice/src/main/java/com/mycompany/obsservice/config/LokiConfig.java',
+                'obsservice/src/main/java/com/mycompany/obsservice/config/MetricConfig.java',
+                'obsservice/src/main/java/com/mycompany/obsservice/util/AggravateMetricsEndpoint.java',
+                'obsservice/docker/docker-compose-elk.yml',
+                'obsservice/docker/docker-compose-monitoring.yml',
+                'obsservice/docker/docker-compose-otel.yml',
+                'obsservice/docker/docker-compose-loki.yml'
+            ],
+            () => {
+                assert.fileContent('obsservice/Dockerfile', /eclipse-temurin:25-jre-jammy/);
+                assert.fileContent('obsservice/pom.xml', /<version>4\.1\.0<\/version>/);
+                assert.fileContent('obsservice/pom.xml', /<java.version>25<\/java.version>/);
+                assert.fileContent('obsservice/pom.xml', /loki-logback-appender/);
+                assert.fileContent('obsservice/pom.xml', /micrometer-tracing-bridge-otel/);
+                assert.fileContent('obsservice/src/main/resources/application.yml', /application\.loki\.url/);
+                assert.fileContent('obsservice/src/main/resources/application.yml', /management\.otlp\.tracing\.endpoint/);
+                assert.fileContent('obsservice/src/main/resources/application.yml', /management\.tracing\.sampling\.probability/);
+                assert.noFileContent('obsservice/docker/docker-compose-monitoring.yml', /GF_SECURITY_ADMIN_PASSWORD=admin/);
+            }
+        );
+    });
+
+    describe('Reuse saved defaults on rerun', () => {
+        testServerGenerator(
+            'reuses saved answers when prompts are omitted',
+            {},
+            [
+                'savedservice/pom.xml',
+                'savedservice/src/main/java/com/mycompany/savedservice/config/LokiConfig.java',
+                'savedservice/src/main/java/com/mycompany/savedservice/config/CacheConfig.java',
+                'savedservice/src/main/java/com/mycompany/savedservice/config/KafkaConfig.java',
+                'savedservice/src/main/java/com/mycompany/savedservice/config/security/SecurityConfig.java',
+                'savedservice/src/main/java/com/mycompany/savedservice/web/controller/AuthController.java'
+            ],
+            () => {
+                assert.fileContent('savedservice/Dockerfile', /eclipse-temurin:21-jre-jammy/);
+                assert.fileContent('savedservice/pom.xml', /spring-boot-starter-security/);
+                assert.fileContent('savedservice/pom.xml', /spring-boot-starter-data-redis/);
+                assert.fileContent('savedservice/pom.xml', /spring-kafka/);
+                assert.fileContent('savedservice/pom.xml', /loki-logback-appender/);
+                assert.fileContent('savedservice/src/main/resources/application.yml', /application\.jwt\.secret/);
+                assert.fileContent('savedservice/src/main/resources/application.yml', /spring\.data\.redis\.host/);
+                assert.fileContent('savedservice/src/main/resources/application.yml', /spring\.kafka\.bootstrap-servers/);
+                assert.fileContent('savedservice/src/main/resources/application.yml', /application\.loki\.url/);
+            },
+            { formatCode: false },
+            run => run.inTmpDir(dir => {
+                fse.writeJsonSync(path.join(dir, '.yo-rc.json'), {
+                    'generator-springboot': {
+                        appName: 'savedservice',
+                        packageName: 'com.mycompany.savedservice',
+                        packageFolder: 'com/mycompany/savedservice',
+                        databaseType: 'postgresql',
+                        dbMigrationTool: 'flywaydb',
+                        features: ['loki'],
+                        messagingType: 'kafka',
+                        cacheType: 'redis',
+                        authenticationType: 'jwt',
+                        javaVersion: '21',
+                        buildTool: 'maven'
+                    }
+                });
+            })
         );
     });
 });

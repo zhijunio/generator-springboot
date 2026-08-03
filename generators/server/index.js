@@ -2,6 +2,8 @@
 import BaseGenerator from '../base-generator.js';
 import constants from '../constants.js';
 import prompts from './prompts.js';
+import { getProjectPresetDefaults } from './project-presets.js';
+import { resolveJavaImage, resolveSpringCloudVersion, resolveTestcontainersVersion } from './platform-versions.js';
 import path from 'path';
 import _ from 'lodash';
 import crypto from 'crypto';
@@ -26,26 +28,73 @@ export default class extends BaseGenerator {
         this.config.set(this.configOptions);
         Object.assign(this.configOptions, constants);
         this.configOptions.formatCode = this.options.formatCode !== false;
-        this.configOptions.appVarName = _.replace(_.startCase(this.configOptions.appName)," ","");
-        this.configOptions.persistence = this.configOptions.persistence || 'jpa';
-        this.configOptions.loggingType = this.configOptions.loggingType || 'none';
-        this.configOptions.dbMigrationFormat = this.configOptions.dbMigrationFormat || 'xml';
-        this.configOptions.javaVersion = this.configOptions.javaVersion || constants.JAVA_VERSION;
-        this.configOptions.javaImage = this.configOptions.javaVersion === '21'
-            ? 'eclipse-temurin:21-jre-jammy'
-            : constants.JAVA_IMAGE;
+        this.configOptions.projectPreset = this.configOptions.projectPreset || 'custom';
+        this._applyProjectPresetDefaults(this.configOptions);
+        this.configOptions.appVarName = _.replace(_.startCase(this.configOptions.appName), /\s+/g, '');
+        this._applyDefaultOption(this.configOptions, 'persistence', 'jpa');
+        this._applyDefaultOption(this.configOptions, 'loggingType', 'none');
+        this._applyDefaultOption(this.configOptions, 'dbMigrationFormat', 'xml');
+        this._applyDefaultOption(this.configOptions, 'javaVersion', constants.JAVA_VERSION);
+        this._applyDefaultOption(this.configOptions, 'springBootVersion', constants.SPRING_BOOT_VERSION);
+        this._applyDefaultOption(this.configOptions, 'buildTool', 'maven');
+        if (this.configOptions.javaVersion === '25' && !this.configOptions.springBootVersion.startsWith('4.')) {
+            this.configOptions.springBootVersion = '4.1.0';
+        }
+        this.configOptions.springCloudVersion =
+            this.configOptions.springCloudVersion || resolveSpringCloudVersion(this.configOptions.springBootVersion);
+        this.configOptions.testcontainersVersion =
+            this.configOptions.testcontainersVersion || resolveTestcontainersVersion(this.configOptions.springBootVersion);
+        this.configOptions.SPRING_BOOT_VERSION = this.configOptions.springBootVersion;
+        this.configOptions.SPRING_CLOUD_VERSION = this.configOptions.springCloudVersion;
+        this.configOptions.javaImage = resolveJavaImage(this.configOptions.javaVersion);
         // loki is exposed as a feature checkbox; map it to loggingType used by templates
-        if (this.configOptions.features.includes('loki')) {
+        if ((this.configOptions.features || []).includes('loki')) {
             this.configOptions.loggingType = 'loki';
         }
         // Generate a unique JWT secret per project (never share the default key)
         if (this.configOptions.authenticationType === 'jwt' && !this.configOptions.jwtSecret) {
             this.configOptions.jwtSecret = crypto.randomBytes(48).toString('base64');
         }
+        if (this.configOptions.authenticationType === 'jwt' && !this.configOptions.adminPassword) {
+            this.configOptions.adminPassword = crypto.randomBytes(16).toString('hex');
+        }
+        if (this.configOptions.authenticationType === 'keycloak' && !this.configOptions.keycloakAdminPassword) {
+            this.configOptions.keycloakAdminPassword = crypto.randomBytes(16).toString('hex');
+        }
+        if ((this.configOptions.features || []).includes('monitoring') && !this.configOptions.grafanaAdminPassword) {
+            this.configOptions.grafanaAdminPassword = crypto.randomBytes(16).toString('hex');
+        }
+        if (this.configOptions.databaseType !== 'mongodb' && !this.configOptions.databasePassword) {
+            this.configOptions.databasePassword = crypto.randomBytes(16).toString('hex');
+        }
+        if ((this.configOptions.databaseType === 'mysql' || this.configOptions.databaseType === 'mariadb')
+                && !this.configOptions.databaseRootPassword) {
+            this.configOptions.databaseRootPassword = crypto.randomBytes(16).toString('hex');
+        }
+        if (this.configOptions.messagingType === 'rabbitmq' && !this.configOptions.rabbitmqPassword) {
+            this.configOptions.rabbitmqPassword = crypto.randomBytes(16).toString('hex');
+        }
         // MongoDB is a NoSQL database: no JPA/MyBatis persistence and no SQL migrations
         if (this.configOptions.databaseType === 'mongodb') {
             this.configOptions.persistence = 'none';
             this.configOptions.dbMigrationTool = 'none';
+        }
+
+        this.config.set(this.configOptions);
+    }
+
+    _applyProjectPresetDefaults(configOptions) {
+        const presetDefaults = getProjectPresetDefaults(configOptions.projectPreset);
+        Object.entries(presetDefaults).forEach(([key, value]) => {
+            if (configOptions[key] === undefined || configOptions[key] === null || configOptions[key] === '') {
+                configOptions[key] = Array.isArray(value) ? [...value] : value;
+            }
+        });
+    }
+
+    _applyDefaultOption(configOptions, key, defaultValue) {
+        if (configOptions[key] === undefined || configOptions[key] === null || configOptions[key] === '') {
+            configOptions[key] = defaultValue;
         }
     }
 
@@ -233,6 +282,7 @@ export default class extends BaseGenerator {
 
         if(configOptions.authenticationType === 'jwt') {
             mainJavaTemplates.push({src: 'config/security/jwt/SecurityConfig.java', dest: 'config/security/SecurityConfig.java'});
+            mainJavaTemplates.push('config/security/OpenApiSecurityConfig.java');
             mainJavaTemplates.push('config/security/JwtService.java');
             mainJavaTemplates.push('config/security/JwtAuthenticationFilter.java');
             mainJavaTemplates.push('web/controller/AuthController.java');
@@ -241,6 +291,7 @@ export default class extends BaseGenerator {
         }
         if(configOptions.authenticationType === 'keycloak') {
             mainJavaTemplates.push({src: 'config/security/keycloak/SecurityConfig.java', dest: 'config/security/SecurityConfig.java'});
+            mainJavaTemplates.push('config/security/OpenApiSecurityConfig.java');
         }
 
         if(configOptions.cacheType === 'redis') {

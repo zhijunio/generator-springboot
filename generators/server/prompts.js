@@ -1,3 +1,6 @@
+import { PROJECT_PRESET_CHOICES } from './project-presets.js';
+import { SPRING_BOOT_VERSION_CHOICES } from './platform-versions.js';
+
 export default {
     prompting
 };
@@ -6,6 +9,13 @@ async function prompting() {
     // Reuse previously saved answers (.yo-rc.json) as defaults for a smooth re-run
     const saved = this.config.getAll() || {};
     const prompts = [
+        {
+            type: 'list',
+            name: 'projectPreset',
+            message: 'Which project preset do you want to use?',
+            choices: PROJECT_PRESET_CHOICES,
+            default: saved.projectPreset || 'custom'
+        },
         {
             type: 'string',
             name: 'appName',
@@ -30,6 +40,7 @@ async function prompting() {
             type: 'list',
             name: 'databaseType',
             message: 'Which type of database you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: 'postgresql',
@@ -54,6 +65,7 @@ async function prompting() {
             type: 'list',
             name: 'dbMigrationTool',
             message: 'Which type of database migration tool you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: 'flywaydb',
@@ -71,10 +83,10 @@ async function prompting() {
             default: saved.dbMigrationTool || 'flywaydb'
         },
         {
-            when: (answers) => answers.dbMigrationTool === 'liquibase',
             type: 'list',
             name: 'dbMigrationFormat',
             message: 'Which format do you want to use for database migrations?',
+            when: answers => answers.projectPreset === 'custom' && answers.dbMigrationTool === 'liquibase',
             choices: [
                 {
                     value: 'xml',
@@ -95,6 +107,8 @@ async function prompting() {
             type: 'checkbox',
             name: 'features',
             message: 'Select the features you want?',
+            when: answers => answers.projectPreset === 'custom',
+            default: saved.features || [],
             choices: [
                 {
                     value: 'elk',
@@ -118,6 +132,7 @@ async function prompting() {
             type: 'list',
             name: 'messagingType',
             message: 'Which messaging solution do you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: 'none',
@@ -132,12 +147,13 @@ async function prompting() {
                     name: 'RabbitMQ'
                 }
             ],
-            default: 'none'
+            default: saved.messagingType || 'none'
         },
         {
             type: 'list',
             name: 'cacheType',
             message: 'Which caching solution do you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: 'none',
@@ -148,12 +164,13 @@ async function prompting() {
                     name: 'Redis'
                 }
             ],
-            default: 'none'
+            default: saved.cacheType || 'none'
         },
         {
             type: 'list',
             name: 'javaVersion',
             message: 'Which Java version do you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: '17',
@@ -162,14 +179,27 @@ async function prompting() {
                 {
                     value: '21',
                     name: 'Java 21 (LTS, virtual threads)'
+                },
+                {
+                    value: '25',
+                    name: 'Java 25 (LTS)'
                 }
             ],
             default: saved.javaVersion || '17'
         },
         {
             type: 'list',
+            name: 'springBootVersion',
+            message: 'Which Spring Boot version do you want to use?',
+            when: answers => answers.projectPreset === 'custom',
+            choices: SPRING_BOOT_VERSION_CHOICES,
+            default: saved.springBootVersion || SPRING_BOOT_VERSION_CHOICES[0].value
+        },
+        {
+            type: 'list',
             name: 'authenticationType',
             message: 'Which authentication mechanism do you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: 'none',
@@ -184,12 +214,13 @@ async function prompting() {
                     name: 'Keycloak (OAuth2 Resource Server)'
                 }
             ],
-            default: 'none'
+            default: saved.authenticationType || 'none'
         },
         {
             type: 'list',
             name: 'buildTool',
             message: 'Which build tool do you want to use?',
+            when: answers => answers.projectPreset === 'custom',
             choices: [
                 {
                     value: 'maven',
@@ -207,5 +238,7 @@ async function prompting() {
     const answers = await this.prompt(prompts);
     Object.assign(this.configOptions, answers);
     this.configOptions.packageFolder = this.configOptions.packageName.replace(/\./g, '/');
-    this.configOptions.features = this.configOptions.features || [];
+    if (answers.projectPreset === 'custom') {
+        this.configOptions.features = this.configOptions.features || [];
+    }
 }

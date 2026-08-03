@@ -32,7 +32,7 @@ export default class extends BaseGenerator {
         this.configOptions = Object.assign({}, this.configOptions, this.config.getAll());
         // JPA CRUD generation is only supported on relational databases
         if (this.configOptions.databaseType === 'mongodb') {
-            this.env.error('The controller sub-generator requires a relational database (JPA). MongoDB projects are not supported.');
+            throw new Error('The controller sub-generator requires a relational database (JPA). MongoDB projects are not supported.');
         }
         this.configOptions.basePath = this.options['base-path'];
         this.configOptions.entityName = this.options.entityName;

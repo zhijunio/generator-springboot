@@ -5,7 +5,7 @@ services:
     environment:
       - POSTGRES_DB=appdb
       - POSTGRES_USER=appuser
-      - POSTGRES_PASSWORD=secret
+      - POSTGRES_PASSWORD=<%= databasePassword %>
     ports:
       - "5432:5432"
 <%_ } _%>
@@ -15,8 +15,8 @@ services:
     environment:
       - MYSQL_DATABASE=appdb
       - MYSQL_USER=appuser
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=<%= databasePassword %>
+      - MYSQL_ROOT_PASSWORD=<%= databaseRootPassword %>
     ports:
       - "3306:3306"
 
@@ -27,8 +27,8 @@ services:
     environment:
       - MYSQL_DATABASE=appdb
       - MYSQL_USER=appuser
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=<%= databasePassword %>
+      - MYSQL_ROOT_PASSWORD=<%= databaseRootPassword %>
     ports:
       - "3306:3306"
 <%_ } _%>
