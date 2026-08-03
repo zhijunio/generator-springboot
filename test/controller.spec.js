@@ -22,7 +22,7 @@ describe('SpringBoot Generator', () => {
             assert.file('src/main/java/com/mycompany/myservice/repository/CustomerRepository.java');
             assert.file('src/main/java/com/mycompany/myservice/service/CustomerService.java');
             assert.file('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java');
-            assert.file('src/main/resources/db/migration/postgresql/V2__create_customers_table.sql');
+            assert.file('src/main/resources/db/migration/postgresql/V2__create_customer_table.sql');
         });
     });
 
@@ -43,7 +43,7 @@ describe('SpringBoot Generator', () => {
             assert.file('src/main/java/com/mycompany/myservice/repository/CustomerRepository.java');
             assert.file('src/main/java/com/mycompany/myservice/service/CustomerService.java');
             assert.file('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java');
-            assert.file('src/main/resources/db/changelog/migration/02-create_customers_table.xml');
+            assert.file('src/main/resources/db/changelog/migration/02-create_customer_table.xml');
         });
     });
 });

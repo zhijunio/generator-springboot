@@ -77,6 +77,7 @@ describe('SpringBoot Generator', () => {
                     "databaseType": "postgresql",
                     "dbMigrationTool": "flywaydb",
                     "buildTool": "maven",
+                    "loggingType": "elk",
                     "features": ["elk", "monitor"]
                 })
                 .on('end', done);
