@@ -4,6 +4,7 @@ import constants from '../constants.js';
 import prompts from './prompts.js';
 import path from 'path';
 import _ from 'lodash';
+import crypto from 'crypto';
 
 export default class extends BaseGenerator {
 
@@ -33,6 +34,14 @@ export default class extends BaseGenerator {
         this.configOptions.javaImage = this.configOptions.javaVersion === '21'
             ? 'eclipse-temurin:21-jre-jammy'
             : constants.JAVA_IMAGE;
+        // loki is exposed as a feature checkbox; map it to loggingType used by templates
+        if (this.configOptions.features.includes('loki')) {
+            this.configOptions.loggingType = 'loki';
+        }
+        // Generate a unique JWT secret per project (never share the default key)
+        if (this.configOptions.authenticationType === 'jwt' && !this.configOptions.jwtSecret) {
+            this.configOptions.jwtSecret = crypto.randomBytes(48).toString('base64');
+        }
         // MongoDB is a NoSQL database: no JPA/MyBatis persistence and no SQL migrations
         if (this.configOptions.databaseType === 'mongodb') {
             this.configOptions.persistence = 'none';

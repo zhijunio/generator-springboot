@@ -101,6 +101,10 @@ async function prompting() {
                     name: 'ELK Docker configuration'
                 },
                 {
+                    value: 'loki',
+                    name: 'Loki Docker configuration'
+                },
+                {
                     value: 'monitoring',
                     name: 'Prometheus, Grafana Docker configuration'
                 },

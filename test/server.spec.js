@@ -154,8 +154,34 @@ describe('SpringBoot Generator', () => {
                 assert.fileContent('myservice/pom.xml', /spring-boot-starter-security/);
                 assert.fileContent('myservice/pom.xml', new RegExp(`<jjwt.version>${constants.JJWT_VERSION}</jjwt.version>`));
                 assert.fileContent('myservice/src/main/resources/application.yml', /application\.jwt\.secret/);
+                // JWT secret must be project-specific, not the shared default
+                assert.noFileContent('myservice/src/main/resources/application.yml', /c2VjcmV0LWtleS1mb3Itand0/);
             },
             {} // real build (spotless) validates generated Java syntax
+        );
+    });
+
+    // Observability: Loki (reachable via features checkbox)
+    describe('Generate microservice with Loki logging using Maven', () => {
+        testServerGenerator(
+            'creates expected logging files for Loki',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "features": ["loki"]
+            },
+            [
+                'myservice/src/main/java/com/mycompany/myservice/config/LokiConfig.java',
+                'myservice/docker/docker-compose-loki.yml'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /loki-logback-appender/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /application\.loki\.url/);
+            }
         );
     });
 

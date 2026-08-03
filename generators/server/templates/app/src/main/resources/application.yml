@@ -14,7 +14,7 @@ spring.mvc.problemdetails.enabled: true
 
 <%_ if (authenticationType === 'jwt') { _%>
 ################ JWT #####################
-application.jwt.secret: c2VjcmV0LWtleS1mb3Itand0LXRva2VuLWdlbmVyYXRpb24tbXVzdC1iZS1sb25n
+application.jwt.secret: <%= jwtSecret %>
 application.jwt.expiration: 86400000
 <%_ } _%>
 <%_ if (authenticationType === 'keycloak') { _%>

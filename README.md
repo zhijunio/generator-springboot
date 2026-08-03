@@ -55,7 +55,6 @@ Generating SpringBoot Application
 ? What is the default package name? com.mycompany.myservice
 ? Which type of database you want to use? PostgreSQL
 ? Which type of database migration tool you want to use? FlywayDB
-? Which type of logging tool you want to use? None
 ? Select the features you want? ELK Docker configuration
 ? Which Java version do you want to use? Java 17
 ? Which authentication mechanism do you want to use? None
