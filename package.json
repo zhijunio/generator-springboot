@@ -38,7 +38,7 @@
     "chai": "5.2.0",
     "fs-extra": "11.3.0",
     "mocha": "10.8.2",
-    "sinon": "19.0.2",
+    "sinon": "19.0.5",
     "yeoman-assert": "^3.1.1",
     "yeoman-test": "^6.3.0"
   },
