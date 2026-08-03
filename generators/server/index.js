@@ -210,6 +210,18 @@ export default class extends BaseGenerator {
             mainJavaTemplates.push('util/AggravateMetricsEndpoint.java');
         }
 
+        if(configOptions.authenticationType === 'jwt') {
+            mainJavaTemplates.push({src: 'config/security/jwt/SecurityConfig.java', dest: 'config/security/SecurityConfig.java'});
+            mainJavaTemplates.push('config/security/JwtService.java');
+            mainJavaTemplates.push('config/security/JwtAuthenticationFilter.java');
+            mainJavaTemplates.push('web/controller/AuthController.java');
+            mainJavaTemplates.push('model/request/LoginRequest.java');
+            mainJavaTemplates.push('model/response/LoginResponse.java');
+        }
+        if(configOptions.authenticationType === 'keycloak') {
+            mainJavaTemplates.push({src: 'config/security/keycloak/SecurityConfig.java', dest: 'config/security/SecurityConfig.java'});
+        }
+
         this.generateMainJavaCode(configOptions, mainJavaTemplates);
 
         const mainResTemplates = [
@@ -282,6 +294,16 @@ export default class extends BaseGenerator {
         if(configOptions.loggingType === 'loki') {
             this._generateLokiConfig(configOptions);
         }
+        if(configOptions.authenticationType === 'keycloak') {
+            this._generateKeycloakConfig(configOptions);
+        }
+    }
+
+    _generateKeycloakConfig(configOptions) {
+        const resTemplates = [
+            'docker/docker-compose-keycloak.yml'
+        ];
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
     _generateAppDockerComposeFile(configOptions) {

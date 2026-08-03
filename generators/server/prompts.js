@@ -102,6 +102,26 @@ async function prompting() {
         },
         {
             type: 'list',
+            name: 'authenticationType',
+            message: 'Which authentication mechanism do you want to use?',
+            choices: [
+                {
+                    value: 'none',
+                    name: 'None'
+                },
+                {
+                    value: 'jwt',
+                    name: 'JWT (Spring Security + jjwt)'
+                },
+                {
+                    value: 'keycloak',
+                    name: 'Keycloak (OAuth2 Resource Server)'
+                }
+            ],
+            default: 'none'
+        },
+        {
+            type: 'list',
             name: 'buildTool',
             message: 'Which build tool do you want to use?',
             choices: [

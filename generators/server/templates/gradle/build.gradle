@@ -66,10 +66,10 @@ dependencies {
     <%_ if (loggingType === 'loki') { _%>
     implementation "com.github.loki4j:loki-logback-appender:${loki_logback_appender_version}"
     <%_ } _%>
-    <%_ if (features.includes("monitor")) { _%>
+    <%_ if (features.includes("monitoring")) { _%>
     runtimeOnly "io.micrometer:micrometer-registry-prometheus"
     <%_ } _%>
-    <%_ if (features.includes("zipkin") || features.includes("monitor")) { _%>
+    <%_ if (features.includes("zipkin") || features.includes("monitoring")) { _%>
     implementation "io.opentelemetry:opentelemetry-exporter-zipkin"
     implementation "io.micrometer:micrometer-tracing-bridge-brave"
     implementation "io.zipkin.reporter2:zipkin-reporter-brave"
@@ -78,6 +78,16 @@ dependencies {
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc_openapi_version}"
     implementation "org.apache.commons:commons-lang3"
     implementation "commons-io:commons-io:${commons_io_version}"
+
+    <%_ if (authenticationType == "jwt") { _%>
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
+    <%_ } _%>
+    <%_ if (authenticationType == "keycloak") { _%>
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
+    <%_ } _%>
 
     developmentOnly "org.springframework.boot:spring-boot-devtools"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"

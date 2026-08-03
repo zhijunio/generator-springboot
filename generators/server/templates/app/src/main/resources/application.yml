@@ -12,6 +12,16 @@ spring.main.allow-bean-definition-overriding: true
 spring.jmx.enabled: false
 spring.mvc.problemdetails.enabled: true
 
+<%_ if (authenticationType === 'jwt') { _%>
+################ JWT #####################
+application.jwt.secret: c2VjcmV0LWtleS1mb3Itand0LXRva2VuLWdlbmVyYXRpb24tbXVzdC1iZS1sb25n
+application.jwt.expiration: 86400000
+<%_ } _%>
+<%_ if (authenticationType === 'keycloak') { _%>
+################ OAuth2 Resource Server #####################
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:8080/realms/myrealm
+<%_ } _%>
+
 ################ Database #####################
 spring.datasource.hikari.auto-commit: false
 spring.datasource.hikari.data-source-properties.ApplicationName: ${spring.application.name}

@@ -128,6 +128,63 @@ describe('SpringBoot Generator', () => {
         );
     });
 
+    // Security: JWT based generation
+    describe('Generate microservice with JWT authentication using Maven', () => {
+        testServerGenerator(
+            'creates expected security files for JWT authentication',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "authenticationType": "jwt",
+                "features": []
+            },
+            [
+                'myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java',
+                'myservice/src/main/java/com/mycompany/myservice/config/security/JwtService.java',
+                'myservice/src/main/java/com/mycompany/myservice/config/security/JwtAuthenticationFilter.java',
+                'myservice/src/main/java/com/mycompany/myservice/web/controller/AuthController.java',
+                'myservice/src/main/java/com/mycompany/myservice/model/request/LoginRequest.java',
+                'myservice/src/main/java/com/mycompany/myservice/model/response/LoginResponse.java'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /spring-boot-starter-security/);
+                assert.fileContent('myservice/pom.xml', new RegExp(`<jjwt.version>${constants.JJWT_VERSION}</jjwt.version>`));
+                assert.fileContent('myservice/src/main/resources/application.yml', /application\.jwt\.secret/);
+            },
+            {} // real build (spotless) validates generated Java syntax
+        );
+    });
+
+    // Security: Keycloak based generation
+    describe('Generate microservice with Keycloak authentication using Maven', () => {
+        testServerGenerator(
+            'creates expected security files for Keycloak authentication',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "authenticationType": "keycloak",
+                "features": []
+            },
+            [
+                'myservice/src/main/java/com/mycompany/myservice/config/security/SecurityConfig.java',
+                'myservice/docker/docker-compose-keycloak.yml'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /spring-boot-starter-oauth2-resource-server/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /oauth2\.resourceserver\.jwt\.issuer-uri/);
+            },
+            {} // real build (spotless) validates generated Java syntax
+        );
+    });
+
     describe('Generate basic microservice using Gradle with Flyway', () => {
         testServerGenerator(
             'creates expected default files for basic microservice with Gradle',

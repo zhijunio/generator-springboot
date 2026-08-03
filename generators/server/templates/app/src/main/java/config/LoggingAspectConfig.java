@@ -3,7 +3,7 @@ package <%= packageName %>.config;
 import static <%= packageName %>.config.AppConstants.PROFILE_NOT_PROD;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.myapp.aop.LoggingAspect;
+import <%= packageName %>.aop.LoggingAspect;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

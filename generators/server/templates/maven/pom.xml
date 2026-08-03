@@ -27,6 +27,9 @@
         <%_ if (loggingType === 'loki') { _%>
         <loki-logback-appender.version><%= LOKI_LOGBACK_APPENDER %></loki-logback-appender.version>
         <%_ } _%>
+        <%_ if (authenticationType === 'jwt') { _%>
+        <jjwt.version><%= JJWT_VERSION %></jjwt.version>
+        <%_ } _%>
         <springdoc-openapi.version><%= SPRINGDOC_OPENAPI_VERSION %></springdoc-openapi.version>
 
         <spotless.version><%= MAVEN_SPOTLESS_PLUGIN_VERSION %></spotless.version>
@@ -58,6 +61,38 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+
+        <%_ if (authenticationType === 'jwt') { _%>
+        <!-- Security: JWT -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <%_ } _%>
+        <%_ if (authenticationType === 'keycloak') { _%>
+        <!-- Security: OAuth2 Resource Server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <%_ } _%>
 
         <!-- Database -->
         <%_ if (persistence === 'jpa') { _%>
