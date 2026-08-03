@@ -75,11 +75,6 @@ dependencies {
     implementation "io.zipkin.reporter2:zipkin-reporter-brave"
     <%_ } _%>
 
-    <%_ if (features.includes("localstack")) { _%>
-    implementation "io.awspring.cloud:spring-cloud-aws-starter"
-    implementation "io.awspring.cloud:spring-cloud-aws-starter-sqs"
-    <%_ } _%>
-
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc_openapi_version}"
     implementation "org.apache.commons:commons-lang3"
     implementation "commons-io:commons-io:${commons_io_version}"
@@ -103,9 +98,6 @@ dependencies {
     <%_ if (databaseType === "mariadb") { _%>
     testImplementation "org.testcontainers:mariadb"
     <%_ } _%>
-    <%_ if (features.includes("localstack")) { _%>
-    testImplementation "org.testcontainers:localstack"
-    <%_ } _%>
     testAnnotationProcessor "org.projectlombok:lombok"
 }
 
@@ -114,9 +106,6 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}"
         <%_ if (persistence === 'mybatis') { _%>
         mavenBom "com.baomidou:mybatis-plus-bom:${mybatis_plus_version}"
-        <%_ } _%>
-        <%_ if (features.includes("localstack")) { _%>
-        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${spring_cloud_aws_version}"
         <%_ } _%>
     }
 }

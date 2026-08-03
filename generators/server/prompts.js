@@ -97,10 +97,6 @@ async function prompting() {
                 {
                     value: 'monitoring',
                     name: 'Prometheus, Grafana Docker configuration'
-                },
-                {
-                    value: 'localstack',
-                    name: 'Localstack Docker configuration'
                 }
             ]
         },

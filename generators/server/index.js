@@ -40,7 +40,6 @@ export default class extends BaseGenerator {
         this._generateGithubActionsFiles(this.configOptions);
         this._generateDbMigrationConfig(this.configOptions);
         this._generateDockerComposeFiles(this.configOptions);
-        this._generateLocalstackConfig(this.configOptions);
         this._generateAppCode(this.configOptions);
     }
 
@@ -227,10 +226,6 @@ export default class extends BaseGenerator {
             {src: 'TestApplication.java', dest: "Test"+configOptions.appVarName+'Application.java'},
 
         ];
-        if(configOptions.features.includes("localstack")) {
-            testJavaTemplates.push('SqsListenerIntegrationTest.java');
-        }
-
         if(configOptions.persistence === "jpa") {
             mainJavaTemplates.push('SchemaValidationTest.java');
         }
@@ -238,7 +233,6 @@ export default class extends BaseGenerator {
         this.generateTestJavaCode(configOptions, testJavaTemplates);
 
         const testResTemplates = [
-            'application-test.yml',
             'logback-test.xml'
         ];
         this.generateTestResCode(configOptions, testResTemplates);
@@ -272,15 +266,6 @@ export default class extends BaseGenerator {
             };
             Object.assign(configOptions, liquibaseMigrantCounter);
             this.config.set(liquibaseMigrantCounter);
-        }
-    }
-
-    _generateLocalstackConfig(configOptions) {
-        if(configOptions.features.includes('localstack')) {
-            this.fs.copy(
-                this.templatePath('app/.localstack'),
-                this.destinationPath('./.localstack')
-            );
         }
     }
 

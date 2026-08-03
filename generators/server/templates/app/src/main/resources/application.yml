@@ -57,14 +57,6 @@ mybatis-plus:
 spring.flyway.locations: classpath:/db/migration/{vendor}
   <%_ } _%>
 
-  <%_ if (features.includes('localstack')) { _%>
-###AWS
-spring.cloud.aws.endpoint: http://localhost:4566
-spring.cloud.aws.credentials.access-key: noop
-spring.cloud.aws.credentials.secret-key: noop
-spring.cloud.aws.region.static: us-east-1
-  <%_ } _%>
-
 ################ Actuator #####################
 management.endpoints.web.exposure.include: configprops,env,health,info,logfile,loggers,metrics,prometheus,aggmetrics
 management.endpoint.health.show-details: always
