@@ -178,4 +178,5 @@ describe('SpringBoot Generator', () => {
             assert.file('myservice/docker-compose-monitor.yml');
         });
     });
+
 });

@@ -24,23 +24,23 @@
   ],
   "main": "generators/app/index.js",
   "scripts": {
-    "test": "npm run test:unit -- test/**/*.spec.js test/*.spec.js --no-insight",
+    "test": "npm run test:unit -- \"test/**/*.spec.js\" \"test/*.spec.js\" --no-insight",
     "test:unit": "mocha --timeout 120000 --slow 0 --reporter spec"
   },
   "dependencies": {
-    "chalk": "5.4.1",
+    "chalk": "^4.1.2",
     "lodash": "4.17.21",
     "shelljs": "0.8.5",
-    "yeoman-environment": "4.4.3",
-    "yeoman-generator": "7.4.0"
+    "yeoman-environment": "^3.19.3",
+    "yeoman-generator": "^5.10.0"
   },
   "devDependencies": {
     "chai": "5.2.0",
     "fs-extra": "11.3.0",
     "mocha": "10.8.2",
     "sinon": "19.0.2",
-    "yeoman-assert": "3.1.1",
-    "yeoman-test": "10.0.1"
+    "yeoman-assert": "^3.1.1",
+    "yeoman-test": "^6.3.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
