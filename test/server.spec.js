@@ -185,6 +185,82 @@ describe('SpringBoot Generator', () => {
         );
     });
 
+    // Data layer: Redis
+    describe('Generate microservice with Redis cache using Maven', () => {
+        testServerGenerator(
+            'creates expected cache files for Redis',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "cacheType": "redis",
+                "features": []
+            },
+            [
+                'myservice/src/main/java/com/mycompany/myservice/config/CacheConfig.java',
+                'myservice/docker/docker-compose-redis.yml'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /spring-boot-starter-data-redis/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /spring\.data\.redis\.host/);
+            }
+        );
+    });
+
+    // Data layer: Kafka
+    describe('Generate microservice with Kafka messaging using Maven', () => {
+        testServerGenerator(
+            'creates expected messaging files for Kafka',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "postgresql",
+                "dbMigrationTool": "flywaydb",
+                "buildTool": "maven",
+                "messagingType": "kafka",
+                "features": []
+            },
+            [
+                'myservice/src/main/java/com/mycompany/myservice/config/KafkaConfig.java',
+                'myservice/docker/docker-compose-kafka.yml'
+            ],
+            () => {
+                assert.fileContent('myservice/pom.xml', /spring-kafka/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /spring\.kafka\.bootstrap-servers/);
+            }
+        );
+    });
+
+    // Data layer: MongoDB
+    describe('Generate microservice with MongoDB using Maven', () => {
+        testServerGenerator(
+            'creates expected files for MongoDB',
+            {
+                "appName": "myservice",
+                "packageName": "com.mycompany.myservice",
+                "packageFolder": "com/mycompany/myservice",
+                "databaseType": "mongodb",
+                "buildTool": "maven",
+                "features": []
+            },
+            [
+                'myservice/pom.xml',
+                'myservice/docker/docker-compose.yml'
+            ],
+            () => {
+                // MongoDB mode: no JPA DatabaseConfig, no SQL migrations, mongodb deps present
+                assert.noFile('myservice/src/main/java/com/mycompany/myservice/config/DatabaseConfig.java');
+                assert.fileContent('myservice/pom.xml', /spring-boot-starter-data-mongodb/);
+                assert.fileContent('myservice/pom.xml', /org\.testcontainers/);
+                assert.fileContent('myservice/src/main/resources/application.yml', /spring\.data\.mongodb\.uri/);
+            }
+        );
+    });
+
     describe('Generate basic microservice using Gradle with Flyway', () => {
         testServerGenerator(
             'creates expected default files for basic microservice with Gradle',

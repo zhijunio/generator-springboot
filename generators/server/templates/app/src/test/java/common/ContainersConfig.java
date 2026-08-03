@@ -13,6 +13,9 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MariaDBContainer;
 <%_ } _%>
 import org.testcontainers.utility.DockerImageName;
+<%_ if (databaseType === 'mongodb') { _%>
+import org.testcontainers.containers.MongoDBContainer;
+<%_ } _%>
 
 @TestConfiguration(proxyBeanMethods = false)
 public class ContainersConfig {
@@ -32,6 +35,13 @@ public class ContainersConfig {
     <%_ if (databaseType === 'mariadb') { _%>
     MariaDBContainer<?> sqlContainer () {
         return new MariaDBContainer<>(DockerImageName.parse("<%= MARIADB_IMAGE %>"));
+    }
+    <%_ } _%>
+    <%_ if (databaseType === 'mongodb') { _%>
+    @Bean
+    @ServiceConnection
+    MongoDBContainer mongoDBContainer() {
+        return new MongoDBContainer(DockerImageName.parse("mongo:7"));
     }
     <%_ } _%>
 }

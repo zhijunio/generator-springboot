@@ -40,6 +40,10 @@ async function prompting() {
                 {
                     value: 'mariadb',
                     name: 'MariaDB'
+                },
+                {
+                    value: 'mongodb',
+                    name: 'MongoDB'
                 }
             ],
             default: 'postgresql'
@@ -99,6 +103,38 @@ async function prompting() {
                     name: 'Prometheus, Grafana Docker configuration'
                 }
             ]
+        },
+        {
+            type: 'list',
+            name: 'messagingType',
+            message: 'Which messaging solution do you want to use?',
+            choices: [
+                {
+                    value: 'none',
+                    name: 'None'
+                },
+                {
+                    value: 'kafka',
+                    name: 'Apache Kafka'
+                }
+            ],
+            default: 'none'
+        },
+        {
+            type: 'list',
+            name: 'cacheType',
+            message: 'Which caching solution do you want to use?',
+            choices: [
+                {
+                    value: 'none',
+                    name: 'None'
+                },
+                {
+                    value: 'redis',
+                    name: 'Redis'
+                }
+            ],
+            default: 'none'
         },
         {
             type: 'list',

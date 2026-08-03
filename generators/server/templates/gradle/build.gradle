@@ -50,6 +50,9 @@ dependencies {
     <%_ if (databaseType === "mariadb") { _%>
     runtimeOnly "org.mariadb.jdbc:mariadb-java-client"
     <%_ } _%>
+    <%_ if (databaseType === "mongodb") { _%>
+    implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
+    <%_ } _%>
     <%_ if (dbMigrationTool  === "flywaydb") { _%>
     implementation "org.flywaydb:flyway-core"
     <%_ } _%>
@@ -88,6 +91,12 @@ dependencies {
     <%_ if (authenticationType == "keycloak") { _%>
     implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     <%_ } _%>
+    <%_ if (cacheType == "redis") { _%>
+    implementation "org.springframework.boot:spring-boot-starter-data-redis"
+    <%_ } _%>
+    <%_ if (messagingType == "kafka") { _%>
+    implementation "org.springframework.kafka:spring-kafka"
+    <%_ } _%>
 
     developmentOnly "org.springframework.boot:spring-boot-devtools"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
@@ -107,6 +116,9 @@ dependencies {
     <%_ } _%>
     <%_ if (databaseType === "mariadb") { _%>
     testImplementation "org.testcontainers:mariadb"
+    <%_ } _%>
+    <%_ if (databaseType === "mongodb") { _%>
+    testImplementation "org.testcontainers:mongodb"
     <%_ } _%>
     testAnnotationProcessor "org.projectlombok:lombok"
 }

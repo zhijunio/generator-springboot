@@ -21,8 +21,23 @@ application.jwt.expiration: 86400000
 ################ OAuth2 Resource Server #####################
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:8080/realms/myrealm
 <%_ } _%>
+<%_ if (cacheType === 'redis') { _%>
+################ Redis #####################
+spring.data.redis.host: localhost
+spring.data.redis.port: 6379
+<%_ } _%>
+<%_ if (messagingType === 'kafka') { _%>
+################ Kafka #####################
+spring.kafka.bootstrap-servers: localhost:9092
+spring.kafka.consumer.group-id: <%= appName %>
+<%_ } _%>
+<%_ if (databaseType === 'mongodb') { _%>
+################ MongoDB #####################
+spring.data.mongodb.uri: mongodb://localhost:27017/<%= appName %>
+<%_ } _%>
 
 ################ Database #####################
+<%_ if (databaseType !== 'mongodb') { _%>
 spring.datasource.hikari.auto-commit: false
 spring.datasource.hikari.data-source-properties.ApplicationName: ${spring.application.name}
   <%_ if (databaseType === 'postgresql') { _%>
@@ -39,6 +54,7 @@ spring.datasource.url: jdbc:mariadb://localhost:3306/appdb
   <%_ } _%>
 spring.datasource.username: appuser
 spring.datasource.password: secret
+<%_ } _%>
   
   <%_ if (persistence === 'jpa') { _%>
 spring.data.jpa.repositories.bootstrap-mode: deferred

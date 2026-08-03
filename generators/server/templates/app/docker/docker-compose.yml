@@ -32,3 +32,9 @@ services:
     ports:
       - "3306:3306"
 <%_ } _%>
+<%_ if (databaseType === 'mongodb') { _%>
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+<%_ } _%>

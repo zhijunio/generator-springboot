@@ -29,6 +29,11 @@ export default class extends BaseGenerator {
         this.configOptions.persistence = this.configOptions.persistence || 'jpa';
         this.configOptions.loggingType = this.configOptions.loggingType || 'none';
         this.configOptions.dbMigrationFormat = this.configOptions.dbMigrationFormat || 'xml';
+        // MongoDB is a NoSQL database: no JPA/MyBatis persistence and no SQL migrations
+        if (this.configOptions.databaseType === 'mongodb') {
+            this.configOptions.persistence = 'none';
+            this.configOptions.dbMigrationTool = 'none';
+        }
     }
 
     writing() {
@@ -190,7 +195,6 @@ export default class extends BaseGenerator {
             'config/ApplicationProperties.java',
             'config/AppConstants.java',
             'config/AsyncConfig.java',
-            'config/DatabaseConfig.java',
             'config/LoggingAspectConfig.java',
             'config/JacksonConfig.java',
             'config/SpringdocConfig.java',
@@ -200,6 +204,10 @@ export default class extends BaseGenerator {
             'exception/ResourceNotFoundException.java',
             'util/PageUtils.java',
         ];
+
+        if(configOptions.persistence === "jpa") {
+            mainJavaTemplates.push('config/DatabaseConfig.java');
+        }
 
         if(configOptions.loggingType === "loki") {
             mainJavaTemplates.push('config/LokiConfig.java');
@@ -220,6 +228,13 @@ export default class extends BaseGenerator {
         }
         if(configOptions.authenticationType === 'keycloak') {
             mainJavaTemplates.push({src: 'config/security/keycloak/SecurityConfig.java', dest: 'config/security/SecurityConfig.java'});
+        }
+
+        if(configOptions.cacheType === 'redis') {
+            mainJavaTemplates.push('config/CacheConfig.java');
+        }
+        if(configOptions.messagingType === 'kafka') {
+            mainJavaTemplates.push('config/KafkaConfig.java');
         }
 
         this.generateMainJavaCode(configOptions, mainJavaTemplates);
@@ -297,6 +312,26 @@ export default class extends BaseGenerator {
         if(configOptions.authenticationType === 'keycloak') {
             this._generateKeycloakConfig(configOptions);
         }
+        if(configOptions.cacheType === 'redis') {
+            this._generateRedisConfig(configOptions);
+        }
+        if(configOptions.messagingType === 'kafka') {
+            this._generateKafkaConfig(configOptions);
+        }
+    }
+
+    _generateKafkaConfig(configOptions) {
+        const resTemplates = [
+            'docker/docker-compose-kafka.yml'
+        ];
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
+    }
+
+    _generateRedisConfig(configOptions) {
+        const resTemplates = [
+            'docker/docker-compose-redis.yml'
+        ];
+        this.generateFiles(configOptions, resTemplates, 'app/', './');
     }
 
     _generateKeycloakConfig(configOptions) {
