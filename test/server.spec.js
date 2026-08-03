@@ -53,7 +53,8 @@ describe('SpringBoot Generator', () => {
                 "buildTool": "maven",
                 "features": []
             },
-            ['myservice/pom.xml']
+            ['myservice/pom.xml',
+             'myservice/src/test/java/com/mycompany/myservice/SchemaValidationTest.java']
         );
     });
 
@@ -89,7 +90,9 @@ describe('SpringBoot Generator', () => {
                 'myservice/pom.xml',
                 'myservice/docker/docker-compose.yml',
                 'myservice/docker/docker-compose-elk.yml',
-                'myservice/docker/docker-compose-monitoring.yml'
+                'myservice/docker/docker-compose-monitoring.yml',
+                'myservice/src/main/java/com/mycompany/myservice/config/MetricConfig.java',
+                'myservice/src/main/java/com/mycompany/myservice/util/AggravateMetricsEndpoint.java'
             ]
         );
     });

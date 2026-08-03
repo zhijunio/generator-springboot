@@ -13,7 +13,7 @@ export default class extends BaseGenerator {
     }
 
     initializing() {
-        this.logSuccess('🚀 Welcome to SpringBoot Application Generator 🚀')
+        this.logSuccess('🚀 Welcome to SpringBoot Application Generator 🚀');
     }
 
     get prompting() {
@@ -29,7 +29,6 @@ export default class extends BaseGenerator {
         this.configOptions.persistence = this.configOptions.persistence || 'jpa';
         this.configOptions.loggingType = this.configOptions.loggingType || 'none';
         this.configOptions.dbMigrationFormat = this.configOptions.dbMigrationFormat || 'xml';
-        console.log("this.configOptions.appVarName: " +this.configOptions.appVarName)
     }
 
     writing() {
@@ -51,7 +50,7 @@ export default class extends BaseGenerator {
     }
 
     _printGenerationSummary(configOptions) {
-        this.logError("==========================================");
+        this.log('==========================================');
         this.logSuccess("Your application is generated successfully");
         this.logSuccess(`  cd ${configOptions.appName}`);
         if (configOptions.buildTool === 'maven') {
@@ -59,7 +58,7 @@ export default class extends BaseGenerator {
         } else {
             this.logSuccess("  > ./gradlew bootRun");
         }
-        this.logError("==========================================");
+        this.log('==========================================');
     }
 
     _generateBuildToolConfig(configOptions) {
@@ -206,7 +205,7 @@ export default class extends BaseGenerator {
             mainJavaTemplates.push('config/LokiConfig.java');
         }
 
-        if(configOptions.features.includes("monitor")) {
+        if(configOptions.features.includes("monitoring")) {
             mainJavaTemplates.push('config/MetricConfig.java');
             mainJavaTemplates.push('util/AggravateMetricsEndpoint.java');
         }
@@ -227,7 +226,7 @@ export default class extends BaseGenerator {
 
         ];
         if(configOptions.persistence === "jpa") {
-            mainJavaTemplates.push('SchemaValidationTest.java');
+            testJavaTemplates.push('SchemaValidationTest.java');
         }
 
         this.generateTestJavaCode(configOptions, testJavaTemplates);

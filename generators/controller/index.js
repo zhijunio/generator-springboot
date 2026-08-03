@@ -7,7 +7,6 @@ export default class extends BaseGenerator {
     constructor(args, opts) {
         super(args, opts);
         this.configOptions = this.options.configOptions || {};
-        console.log(1)
         this.argument("entityName", {
             type: String,
             required: true,
@@ -17,23 +16,17 @@ export default class extends BaseGenerator {
         this.option('base-path', {
             type: String,
             desc: "Base URL path for REST Controller"
-        })
+        });
     }
 
     get initializing() {
         this.logSuccess('Generating Entity, repository, service and controller');
         return {
             validateEntityName() {
-                const context = this.context;
-                console.log(`EntityName: ${this.options.entityName}, basePath: ${this.options.basePath}`);
                 //this.env.error("The entity name is invalid");
             }
-        }
+        };
     }
-
-    /*get prompting() {
-        return prompts.prompting;
-    }*/
 
     configuring() {
         this.configOptions = Object.assign({}, this.configOptions, this.config.getAll());
