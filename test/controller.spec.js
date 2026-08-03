@@ -55,6 +55,9 @@ describe('SpringBoot Generator', () => {
             // Content assertions: entity class name and liquibase changelog reference the table
             assert.fileContent('src/main/java/com/mycompany/myservice/entity/Customer.java', /public class Customer/);
             assert.fileContent('src/main/resources/db/changelog/migration/02-create_customer_table.xml', /customer/);
+            // Enhanced controller: OpenAPI annotations and search param
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /@Operation/);
+            assert.fileContent('src/main/java/com/mycompany/myservice/web/controller/CustomerController.java', /String search/);
         });
     });
 });

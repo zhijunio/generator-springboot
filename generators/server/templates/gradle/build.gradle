@@ -127,6 +127,7 @@ dependencies {
     <%_ if (databaseType === "mongodb") { _%>
     testImplementation "org.testcontainers:mongodb"
     <%_ } _%>
+    testImplementation "com.tngtech.archunit:archunit-junit5:${archunit_version}"
     testAnnotationProcessor "org.projectlombok:lombok"
 }
 

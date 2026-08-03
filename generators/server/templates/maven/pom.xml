@@ -34,6 +34,7 @@
 
         <spotless.version><%= MAVEN_SPOTLESS_PLUGIN_VERSION %></spotless.version>
         <sonar-maven-plugin.version><%= MAVEN_SONAR_PLUGIN_VERSION %></sonar-maven-plugin.version>
+        <archunit.version><%= ARCHUNIT_VERSION %></archunit.version>
         <jacoco-maven-plugin.version><%= MAVEN_JACOCO_PLUGIN_VERSION %></jacoco-maven-plugin.version>
         <jib-maven-plugin.version><%= MAVEN_JIB_PLUGIN_VERSION %></jib-maven-plugin.version>
         <properties-maven-plugin.version><%= MAVEN_PROPERTIES_PLUGIN_VERSION %></properties-maven-plugin.version>
@@ -301,6 +302,12 @@
             <scope>test</scope>
         </dependency>
         <%_ } _%>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

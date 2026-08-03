@@ -254,6 +254,7 @@ export default class extends BaseGenerator {
 
         const testJavaTemplates = [
             'ApplicationIntegrationTest.java',
+            'ArchitectureTest.java',
             'common/ContainersConfig.java',
             'common/AbstractIntegrationTest.java',
             {src: 'TestApplication.java', dest: "Test"+configOptions.appVarName+'Application.java'},
