@@ -105,18 +105,18 @@ export default class extends BaseGenerator {
     }
 
     _generateMavenConfig(configOptions) {
-        this._copyMavenWrapper(configOptions);
+        this._copyMavenWrapper();
         this._generateMavenPOMXml(configOptions);
         this.fs.copyTpl(this.templatePath('app/sonar-project.properties'), this.destinationPath('sonar-project.properties'), configOptions);
     }
 
     _generateGradleConfig(configOptions) {
-        this._copyGradleWrapper(configOptions);
+        this._copyGradleWrapper();
         this._generateGradleBuildScript(configOptions);
         this.fs.copyTpl(this.templatePath('app/sonar-project.properties'), this.destinationPath('sonar-project.properties'), configOptions);
     }
 
-    _copyMavenWrapper(configOptions) {
+    _copyMavenWrapper() {
         const commonMavenConfigDir = '../../common/files/maven/';
 
         ['mvnw', 'mvnw.cmd'].forEach(tmpl => {
@@ -147,7 +147,7 @@ export default class extends BaseGenerator {
         );
     }
 
-    _copyGradleWrapper(configOptions) {
+    _copyGradleWrapper() {
         const commonGradleConfigDir = '../../common/files/gradle/';
 
         ['gradlew', 'gradlew.bat'].forEach(tmpl => {
